@@ -4,37 +4,38 @@ import random
 from datetime import datetime
 
 MONGO_URI = "mongodb+srv://viniciuszapella_db_user:VDCkhL8dliaUVFR9@cluster0.vcouow0.mongodb.net/?retryWrites=true&w=majority"
-
 client = pymongo.MongoClient(MONGO_URI)
-
 db = client["variante_motores-db"]
 collection = db["kotlin"]
 
-def simular_sensor():
-    temp_atual = 55.0  
-    print(" Populador iniciado. Enviando dados para o Atlas...")
+motores_weg = [
+    {"id": 101, "modelo": "WEG W22 Magnet", "temp_base": 70.0},
+    {"id": 102, "modelo": "WEG W21 Explosion Proof", "temp_base": 50.0},
+    {"id": 103, "modelo": "WEG W12 Mini", "temp_base": 40.0},
+    {"id": 104, "modelo": "WEG W50 High Voltage", "temp_base": 85.0},
+    {"id": 105, "modelo": "WEG Scan Sensor", "temp_base": 30.0},
+]
 
+def gerar_dados_frota():
+    print("Monitoramento WEG iniciado...")
     while True:
-        variacao = random.uniform(-1.5, 2.0)
-        temp_atual += variacao
-        
-        envio_sucesso = random.random() > 0.1
-        valor_final = round(temp_atual, 2) if envio_sucesso else None
+        for m in motores_weg:
 
-        payload = {
-            "motor_id": 101,
-            "temperatura": valor_final,
-            "timestamp": datetime.now().strftime("%H:%M:%S")
-        }
+            temp = round(m["temp_base"] + random.uniform(-5.0, 5.0), 2)
+            
+            valor_final = temp if random.random() > 0.05 else None
 
-        try:
+            payload = {
+                "motor_id": m["id"],
+                "modelo": m["modelo"],
+                "temperatura": valor_final,
+                "timestamp": datetime.now().strftime("%H:%M:%S")
+            }
+            
             collection.insert_one(payload)
-            status = f" {valor_final}°C" if envio_sucesso else " SENSOR OFF (NULL)"
-            print(f"[LOG] {payload['timestamp']} - {status}")
-        except Exception as e:
-            print(f"Erro ao inserir: {e}")
-        
-        time.sleep(1) 
+            
+        print(f"[{datetime.now().strftime('%H:%M:%S')}] Dados da frota enviados.")
+        time.sleep(3)
 
 if __name__ == "__main__":
-    simular_sensor()
+    gerar_dados_frota()

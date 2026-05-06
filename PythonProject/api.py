@@ -9,9 +9,17 @@ collection = db["kotlin"]
 
 @app.get("/status")
 def get_status():
+    lista_motores = [101, 102, 103, 104, 105]
+    status_atual = []
+    
+    for mid in lista_motores:
 
-    cursor = collection.find({}, {"_id": 0}).sort("_id", -1).limit(5)
-    return list(cursor)
+        leitura = collection.find({"motor_id": mid}, {"_id": 0}).sort("timestamp", -1).limit(1)
+        res = list(leitura)
+        if res:
+            status_atual.append(res[0])
+            
+    return status_atual
 
 if __name__ == "__main__":
     import uvicorn
