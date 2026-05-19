@@ -29,7 +29,7 @@ def gerar_dados_frota():
                 "motor_id": m["id"],
                 "modelo": m["modelo"],
                 "temperatura": valor_final,
-                "timestamp": datetime.utcnow()
+                "timestamp": datetime.now().strftime("%H:%M:%S")
             }
             
             collection.insert_one(payload)
